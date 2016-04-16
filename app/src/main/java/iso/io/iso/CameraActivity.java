@@ -1,6 +1,7 @@
 package iso.io.iso;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -26,6 +27,8 @@ public class CameraActivity extends AppCompatActivity {
   Button capture;
   Button finished;
   String TAG = this.getClass().getSimpleName();
+  CameraPreview cameraPreview;
+  Context context;
 
   private final Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback() {
     @Override public void onShutter() {
@@ -39,10 +42,12 @@ public class CameraActivity extends AppCompatActivity {
     }
   };
 
-  private final Camera.PictureCallback callback = new Camera.PictureCallback() {
+  private final Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
     @Override public void onPictureTaken(byte[] data, Camera camera) {
       Log.e(TAG, "JPEG onPictureTaken");
       enableFinished();
+      camera.startPreview();
+      Toast.makeText(context, "Yo logcat is fucked", Toast.LENGTH_SHORT).show();
       File pictureFile = getOutputMediaFile();
       if (pictureFile == null) {
         return;
@@ -52,27 +57,29 @@ public class CameraActivity extends AppCompatActivity {
         fos.write(data);
         fos.close();
       } catch (FileNotFoundException e) {
-
+        Log.e(TAG, e.getMessage());
+        e.printStackTrace();
       } catch (IOException e) {
+        Log.e(TAG, e.getMessage());
+        e.printStackTrace();
       }
     }
   };
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    this.context = this;
     setContentView(R.layout.activity_camera);
     capture = (Button) findViewById(R.id.button_capture);
     finished = (Button) findViewById(R.id.button_finished);
 
+    requestCamera();
+    disableFinished();
+
     capture.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
         Log.e("Log", "taking picture");
-        camera.takePicture(shutterCallback, rawCallback, callback);
-        camera.setErrorCallback(new Camera.ErrorCallback() {
-          @Override public void onError(int error, Camera camera) {
-            Log.e("@@@@@@", "shits fucked yo: " + error);
-          }
-        });
+        camera.takePicture(shutterCallback, rawCallback, jpegCallback);
 
         disableFinished();
       }
@@ -134,6 +141,7 @@ public class CameraActivity extends AppCompatActivity {
       c = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK); // attempt to get a Camera instance
     } catch (Exception e) {
       Log.e("Error", "Camera is not available" + e.getMessage());
+      e.printStackTrace();
       // Camera is not available - in use or does not exist
     }
     return c;
@@ -158,7 +166,12 @@ public class CameraActivity extends AppCompatActivity {
 
   public void loadCamera() {
     camera = getCameraInstance();
-    CameraPreview cameraPreview = new CameraPreview(this, camera);
+    camera.setErrorCallback(new Camera.ErrorCallback() {
+      @Override public void onError(int error, Camera camera) {
+        Log.e(TAG, "shits fucked yo: " + error);
+      }
+    });
+    cameraPreview = new CameraPreview(this, camera);
     FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
     if (camera != null) {
       preview.addView(cameraPreview);
@@ -169,8 +182,6 @@ public class CameraActivity extends AppCompatActivity {
 
   @Override protected void onResume() {
     super.onResume();
-    requestCamera();
-    disableFinished();
   }
 }
 
