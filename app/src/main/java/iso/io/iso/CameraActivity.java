@@ -8,19 +8,52 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
 public class CameraActivity extends AppCompatActivity {
 
   Camera camera;
+  Button capture;
+  String TAG = "Camera Activity";
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_camera);
+    capture = (Button) findViewById(R.id.button_capture);
     requestCamera();
     loadCamera();
+
+    capture.setOnClickListener(new View.OnClickListener() {
+      @Override public void onClick(View v) {
+        Log.d("Log", "taking picture");
+        camera.takePicture(shutterCallback, null, callback);
+      }
+    });
   }
+
+  final Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback() {
+    @Override
+    public void onShutter() {
+      Log.d(TAG, "onShutter");
+    }
+  };
+
+  final Camera.PictureCallback callback = new Camera.PictureCallback() {
+
+    @Override
+    public void onPictureTaken(byte[] data, Camera camera) {
+      Log.d(TAG, "onPictureTaken - jpeg");
+      try {
+        //Store the photo
+      } catch (Exception e) {
+        //some exceptionhandling
+        Log.e(TAG, e.getMessage());
+      }
+    }
+  };
 
   public static Camera getCameraInstance() {
     Camera c = null;
@@ -65,6 +98,11 @@ public class CameraActivity extends AppCompatActivity {
     }
   }
 
+  @Override protected void onPause() {
+    super.onPause();
+    releaseCamera();
+  }
+
   public void releaseCamera() {
     if (camera != null) {
       camera.release();
@@ -82,6 +120,7 @@ public class CameraActivity extends AppCompatActivity {
       Toast.makeText(CameraActivity.this, "The camera is null", Toast.LENGTH_SHORT).show();
     }
   }
+
 
 }
 
