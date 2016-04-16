@@ -9,17 +9,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import iso.io.iso.net.STLFile;
 import iso.io.iso.net.WebAPI;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-import retrofit.mime.TypedFile;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -41,38 +36,24 @@ public class MainActivity extends AppCompatActivity {
     });
 
     RestAdapter restAdapter = new RestAdapter.Builder()
-        .setEndpoint("isodfw.herokuapp.com/")
+        .setEndpoint("https://isodfw.herokuapp.com")
         .setLogLevel(RestAdapter.LogLevel.FULL)
         .build();
 
     webAPI = restAdapter.create(WebAPI.class);
 
-    try {
-      FileOutputStream outputStream = openFileOutput("test.txt", MODE_APPEND);
-      OutputStreamWriter writer = new OutputStreamWriter(outputStream);
+    STLFile file = new STLFile();
+    file.fileName = "rawrggg";
+    file.data = "hellow I am the body of this thing";
+    webAPI.sendFile(file.fileName, file.data, new Callback<Response>() {
+      @Override public void success(Response response, Response response2) {
+        Log.e("@@@@@", "shit works yo");
+      }
 
-      writer.write("vinli is bestli");
-      writer.flush();
-      writer.close();
-
-      TypedFile file = new TypedFile("text/plain", new File("test.txt"));
-
-      webAPI.sendFile(file, new Callback<Response>() {
-        @Override public void success(Response response, Response response2) {
-         Log.e("@@@@@", "shit works yo");
-        }
-
-        @Override public void failure(RetrofitError error) {
-          Log.e("@@@@", "shit failed yo: " + error.getMessage());
-        }
-      });
-
-
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+      @Override public void failure(RetrofitError error) {
+        Log.e("@@@@", "shit failed yo: " + error.getMessage());
+      }
+    });
   }
 
   @Override public boolean onCreateOptionsMenu(Menu menu) {
