@@ -1,6 +1,8 @@
 package iso.io.iso;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -9,8 +11,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
+  Context context = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +57,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
   public void openCameraActivity(){
-    Intent intent = new Intent(this, CameraActivity.class);
-    startActivity(intent);
+    if(checkCameraHardware(context)){
+      Intent intent = new Intent(this, CameraActivity.class);
+      startActivity(intent);
+    } else{
+      Toast.makeText(MainActivity.this, "You don't have a camera", Toast.LENGTH_SHORT).show();
+    }
+
   }
+
+  private boolean checkCameraHardware(Context context) {
+    if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
+      // this device has a camera
+      return true;
+    } else {
+      // no camera on this device
+      return false;
+    }
+  }
+
 }
