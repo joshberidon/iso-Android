@@ -3,6 +3,8 @@ package iso.io.iso;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Environment;
@@ -15,9 +17,6 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -29,7 +28,7 @@ public class CameraActivity extends AppCompatActivity {
   String TAG = this.getClass().getSimpleName();
   CameraPreview cameraPreview;
   Context context;
-
+  
   private final Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback() {
     @Override public void onShutter() {
       Log.e(TAG, "onShutter");
@@ -48,21 +47,10 @@ public class CameraActivity extends AppCompatActivity {
       enableFinished();
       camera.startPreview();
       Toast.makeText(context, "Yo logcat is fucked", Toast.LENGTH_SHORT).show();
-      File pictureFile = getOutputMediaFile();
-      if (pictureFile == null) {
-        return;
-      }
-      try {
-        FileOutputStream fos = new FileOutputStream(pictureFile);
-        fos.write(data);
-        fos.close();
-      } catch (FileNotFoundException e) {
-        Log.e(TAG, e.getMessage());
-        e.printStackTrace();
-      } catch (IOException e) {
-        Log.e(TAG, e.getMessage());
-        e.printStackTrace();
-      }
+
+      Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+
+
     }
   };
 
@@ -100,7 +88,6 @@ public class CameraActivity extends AppCompatActivity {
             "MyCameraApp");
     if (!mediaStorageDir.exists()) {
       if (!mediaStorageDir.mkdirs()) {
-        Log.d("MyCameraApp", "failed to create directory");
         return null;
       }
     }
@@ -166,11 +153,6 @@ public class CameraActivity extends AppCompatActivity {
 
   public void loadCamera() {
     camera = getCameraInstance();
-    camera.setErrorCallback(new Camera.ErrorCallback() {
-      @Override public void onError(int error, Camera camera) {
-        Log.e(TAG, "shits fucked yo: " + error);
-      }
-    });
     cameraPreview = new CameraPreview(this, camera);
     FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
     if (camera != null) {
@@ -184,6 +166,7 @@ public class CameraActivity extends AppCompatActivity {
     super.onResume();
   }
 }
+
 
 
 
