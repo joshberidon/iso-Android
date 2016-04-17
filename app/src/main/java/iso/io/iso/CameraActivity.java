@@ -112,7 +112,7 @@ public class CameraActivity extends AppCompatActivity {
     int width = bitmap.getWidth();
     int height = bitmap.getHeight();
 
-    final int threshold = 15;
+    final int threshold = 100;
 
     int thatGreenColor = this.getResources().getColor(R.color.fuck_your_green);
     int greenRed = Color.red(thatGreenColor);
@@ -132,7 +132,7 @@ public class CameraActivity extends AppCompatActivity {
         int blueDiff = Math.abs(greenBlue - blue);
 
         if(redDiff < threshold && greenDiff < threshold && blueDiff < threshold){
-          bitmap.setPixel(w, h, getColor(R.color.clearIThink));
+          bitmap.setPixel(w, h, context.getResources().getColor(R.color.clearIThink));
         }
       }
     }
@@ -148,7 +148,8 @@ public class CameraActivity extends AppCompatActivity {
 
     if (currentSide.equals(PictureMesher.PictureSide.FRONT)) {
       pictureMesher.addPicture(bitmapMap.get(currentSide), currentSide);
-      ogBitmap = bitmap;
+      //ogBitmap = bitmap;// TODO
+      ogBitmap = bitmapMap.get(currentSide);
       currentSide = PictureMesher.PictureSide.TOP;
     } else if (currentSide.equals(PictureMesher.PictureSide.TOP)) {
       pictureMesher.addPicture(bitmapMap.get(currentSide), currentSide);
