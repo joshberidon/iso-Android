@@ -25,6 +25,8 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.soundcloud.android.crop.Crop;
+import iso.io.iso.net.WebAPI;
+import iso.io.iso.net.WebData;
 import iso.io.iso.threading.MeshWorkerCallback;
 import iso.io.iso.threading.PictureMesher;
 import java.io.File;
@@ -36,6 +38,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import retrofit.Callback;
+import retrofit.RequestInterceptor;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 public class CameraActivity extends AppCompatActivity {
 
@@ -51,6 +58,9 @@ public class CameraActivity extends AppCompatActivity {
   PictureMesher pictureMesher;
   Boolean picturesFinished;
   float distance;
+  private WebAPI webAPI;
+  private String modalName;
+
   private final Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback() {
     @Override public void onShutter() {
       Log.e(TAG, "onShutter");
@@ -140,11 +150,20 @@ public class CameraActivity extends AppCompatActivity {
     View decorView = getWindow().getDecorView();
     int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
     decorView.setSystemUiVisibility(uiOptions);
-    if(getActionBar() != null){
-      ActionBar actionBar = getActionBar();
-      actionBar.hide();
-    }
 
+    RequestInterceptor interceptor = new RequestInterceptor() {
+      @Override public void intercept(RequestFacade request) {
+        request.addHeader("Content-Type", "application/json");
+      }
+    };
+
+    RestAdapter restAdapter = new RestAdapter.Builder()
+        .setEndpoint("https://isodfw.herokuapp.com")
+        .setLogLevel(RestAdapter.LogLevel.FULL)
+        .setRequestInterceptor(interceptor)
+        .build();
+
+    webAPI = restAdapter.create(WebAPI.class);
 
     bitmapMap = new LinkedHashMap<>();
     currentSide = PictureMesher.PictureSide.FRONT;
@@ -244,6 +263,10 @@ public class CameraActivity extends AppCompatActivity {
 
   @Override protected void onResume() {
     super.onResume();
+    if(getActionBar() != null){
+      ActionBar actionBar = getActionBar();
+      actionBar.hide();
+    }
   }
 
   @Override
@@ -321,6 +344,19 @@ public class CameraActivity extends AppCompatActivity {
         }).show();
   }
 
+  public void readyToSendData(){
+    WebData data = new WebData(modalName, "This is data", "This is bitmap");
+    webAPI.sendFile(data, new Callback<Response>() {
+      @Override public void success(Response response, Response response2) {
+        Log.e("@@@@@", "gg web works");
+      }
+
+      @Override public void failure(RetrofitError error) {
+        Log.e("@@@@@@", "retrofit failed yo: " + error.getMessage());
+      }
+    });
+  }
+
   public void modalThingShow(){
     AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
@@ -336,6 +372,8 @@ public class CameraActivity extends AppCompatActivity {
 
         // Do something with value!
         Log.e("@@@@", "your thing is called: " + input.getText().toString());
+        modalName = input.getText().toString();
+        readyToSendData();
       }
     });
 
