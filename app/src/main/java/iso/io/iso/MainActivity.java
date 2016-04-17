@@ -63,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
     } else{
       Toast.makeText(MainActivity.this, "You don't have a camera", Toast.LENGTH_SHORT).show();
     }
-
   }
   public void openGridActivity(){
       Intent intent = new Intent(this, GridActivity.class);
