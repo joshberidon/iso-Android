@@ -15,21 +15,32 @@
       android:layout_height="match_parent"
       android:orientation="vertical"
       >
+    <TextView
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@color/limeGreen"
+        android:text=""
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:id="@+id/diagram"
+        android:layout_marginTop="24dp"
+        />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom"
+        android:gravity="bottom"
+        android:orientation="vertical"
+        >
     <Button
         android:id="@+id/button_capture"
-        android:text="Capture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_gravity="center"
+        android:layout_marginBottom="24dp"
+        android:background="@mipmap/ic_capture"
         />
-    <Button
-        android:id="@+id/button_finished"
-        android:text="Finished"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        />
-
+    </LinearLayout>
 
   </LinearLayout>
 

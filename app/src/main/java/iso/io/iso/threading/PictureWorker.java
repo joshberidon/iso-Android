@@ -1,6 +1,6 @@
 package iso.io.iso.threading;
 
-import java.io.File;
+import android.graphics.Bitmap;
 
 /**
  * Created by tbrown on 4/16/16.
@@ -10,9 +10,9 @@ public class PictureWorker {
   private Thread thread;
   private MeshWorker meshWorker;
   public PictureMesher.PictureSide side;
-  public File file;
+  public Bitmap file;
 
-  public PictureWorker(MeshWorker meshThread, PictureMesher.PictureSide side, final File file){
+  public PictureWorker(MeshWorker meshThread, PictureMesher.PictureSide side, final Bitmap file){
     this.meshWorker = meshThread;
     this.side = side;
     this.file = file;
@@ -27,7 +27,7 @@ public class PictureWorker {
     this.thread.run();
   }
 
-  public void work(File file){
+  public void work(Bitmap file){
     finished(null);
   }
 
