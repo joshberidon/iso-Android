@@ -1,5 +1,6 @@
 package iso.io.iso.threading;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -60,8 +61,10 @@ public class PictureMesher {
   private LinkedHashMap<Integer, Bitmap> bitmapMap;
   private MeshWorker meshWorker;
   private ArrayList<PictureWorker> pictureWorkers;
+  private Context context;
 
-  public PictureMesher(){
+  public PictureMesher(Context context){
+    this.context = context;
     bitmapMap = new LinkedHashMap<>();
   }
 
@@ -76,7 +79,7 @@ public class PictureMesher {
     this.meshWorker = new MeshWorker(bitmapMap.keySet().size(), callback);
 
     for(Integer i : bitmapMap.keySet()){
-      PictureWorker worker = new PictureWorker(meshWorker, PictureSide.getFromInteger(i), bitmapMap.get(i));
+      PictureWorker worker = new PictureWorker(context, meshWorker, PictureSide.getFromInteger(i), bitmapMap.get(i));
       worker.beginWorking();
       pictureWorkers.add(worker);
 

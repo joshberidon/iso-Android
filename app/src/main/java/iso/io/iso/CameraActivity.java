@@ -107,10 +107,9 @@ public class CameraActivity extends AppCompatActivity {
     capture = (Button) findViewById(R.id.button_capture);
     diagram = (TextView) findViewById(R.id.diagram);
     diagram.setText(currentSide.getAsString());
-    pictureMesher = new PictureMesher();
+    pictureMesher = new PictureMesher(this);
     picturesFinished = false;
     FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
-
 
     View decorView = getWindow().getDecorView();
     // Hide the status bar.
