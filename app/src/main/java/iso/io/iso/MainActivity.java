@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+          openGridActivity();
         }
 
         return super.onOptionsItemSelected(item);
@@ -63,6 +63,11 @@ public class MainActivity extends AppCompatActivity {
     } else{
       Toast.makeText(MainActivity.this, "You don't have a camera", Toast.LENGTH_SHORT).show();
     }
+
+  }
+  public void openGridActivity(){
+      Intent intent = new Intent(this, GridActivity.class);
+      startActivity(intent);
 
   }
 

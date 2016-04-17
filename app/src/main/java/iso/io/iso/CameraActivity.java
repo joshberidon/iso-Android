@@ -93,11 +93,9 @@ public class CameraActivity extends AppCompatActivity {
         }
         diagram.setText(currentSide.getAsString());
         camera.startPreview();
-        // update ui and
       }
     });
 
-    // else lets start fucikng making shit
   }
 
   @Override protected void onCreate(Bundle savedInstanceState) {

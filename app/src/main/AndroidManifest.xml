@@ -2,11 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="iso.io.iso"
     >
+
   <uses-permission android:name="android.permission.CAMERA"/>
-  <uses-feature android:name="android.hardware.camera" />
-  <uses-feature android:name="android.hardware.camera.autofocus" />
-  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+  <uses-feature android:name="android.hardware.camera"/>
+  <uses-feature android:name="android.hardware.camera.autofocus"/>
+
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
   <application
       android:allowBackup="true"
@@ -18,8 +21,8 @@
     <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
-        android:theme="@style/Theme.AppCompat.NoActionBar">
-
+        android:theme="@style/Theme.AppCompat.NoActionBar"
+        >
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
 
@@ -29,12 +32,16 @@
     <activity
         android:name=".CameraActivity"
         android:label="@string/title_activity_camera"
-        android:theme="@style/AppTheme.NoActionBar"
         android:screenOrientation="landscape"
+        android:theme="@style/AppTheme.NoActionBar"
         >
     </activity>
-
-
+    <activity
+        android:name=".GridActivity"
+        android:label="@string/title_activity_grid"
+        android:theme="@style/AppTheme.NoActionBar"
+        >
+    </activity>
   </application>
 
 </manifest>
