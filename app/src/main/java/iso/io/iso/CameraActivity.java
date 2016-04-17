@@ -28,7 +28,7 @@ public class CameraActivity extends AppCompatActivity {
   String TAG = this.getClass().getSimpleName();
   CameraPreview cameraPreview;
   Context context;
-  
+
   private final Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback() {
     @Override public void onShutter() {
       Log.e(TAG, "onShutter");
