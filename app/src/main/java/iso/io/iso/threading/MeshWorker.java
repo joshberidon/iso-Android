@@ -1,5 +1,9 @@
 package iso.io.iso.threading;
 
+import iso.io.iso.algorithms.mesh.MeshCloud;
+import iso.io.iso.algorithms.mesh.MeshMerge;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,11 +35,12 @@ public class MeshWorker {
   }
 
   public void work(){
-
-    finished(null);
+    MeshMerge mergerThingamajic = new MeshMerge((MeshFace[])(new ArrayList<MeshFace>(completedDatas.values())).toArray());
+    MeshCloud cloud = mergerThingamajic.runMesh();
+    finished(cloud);
   }
 
-  private void finished(Object data){
+  private void finished(MeshCloud data){
     callback.meshWorkerCompleted(data);
   }
 
