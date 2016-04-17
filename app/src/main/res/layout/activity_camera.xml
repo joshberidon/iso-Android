@@ -11,15 +11,26 @@
       android:background="@color/red"
       />
   <LinearLayout
-      android:layout_width="wrap_content"
+      android:layout_width="96dp"
       android:layout_height="match_parent"
       android:orientation="vertical"
+      android:background="@color/darkGray"
       >
     <TextView
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:background="@color/limeGreen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Take a picture from the:"
+        android:textColor="@color/whiteTan"
+        android:layout_marginTop="24dp"
+        android:gravity="center_horizontal"
+        android:id="@+id/picture_text"
+        />
+    <TextView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@drawable/rounded_corners"
         android:text=""
+        android:textColor="@color/whiteTan"
         android:layout_gravity="center"
         android:gravity="center"
         android:id="@+id/diagram"
@@ -28,7 +39,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="bottom"
+        android:layout_gravity="center_horizontal"
         android:gravity="bottom"
         android:orientation="vertical"
         >

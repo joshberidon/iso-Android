@@ -3,6 +3,10 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="red">#ffff0000</color>
+    <color name="red">#a32500</color>
     <color name="limeGreen">#22ff33</color>
+    <color name="darkGray">#2b2922</color>
+    <color name="whiteTan">#EFE4BD</color>
+    <color name="brownTan">#A39770</color>
+    <color name="greyTan">#BAB293</color>
 </resources>

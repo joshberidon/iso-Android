@@ -39,6 +39,7 @@ public class CameraActivity extends AppCompatActivity {
   LinkedHashMap<PictureMesher.PictureSide, Bitmap> bitmapMap;
   PictureMesher.PictureSide currentSide;
   TextView diagram;
+  TextView pictureText;
   PictureMesher pictureMesher;
   Boolean picturesFinished;
   float distance;
@@ -88,6 +89,7 @@ public class CameraActivity extends AppCompatActivity {
         if (picturesFinished) {
           diagram.setVisibility(View.INVISIBLE);
           capture.setVisibility(View.INVISIBLE);
+          pictureText.setVisibility(View.INVISIBLE);
         }
         diagram.setText(currentSide.getAsString());
         camera.startPreview();
@@ -101,28 +103,28 @@ public class CameraActivity extends AppCompatActivity {
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     this.context = this;
-    bitmapMap = new LinkedHashMap<>();
-    currentSide = PictureMesher.PictureSide.FRONT;
-    setContentView(R.layout.activity_camera);
-    capture = (Button) findViewById(R.id.button_capture);
-    diagram = (TextView) findViewById(R.id.diagram);
-    diagram.setText(currentSide.getAsString());
-    pictureMesher = new PictureMesher();
-    picturesFinished = false;
-    FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
-
-
     View decorView = getWindow().getDecorView();
-    // Hide the status bar.
     int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
     decorView.setSystemUiVisibility(uiOptions);
-    // Remember that you should never show the action bar if the
-    // status bar is hidden, so hide that too if necessary.
     if(getActionBar() != null){
       ActionBar actionBar = getActionBar();
       actionBar.hide();
     }
-    showInstructions();
+
+
+    bitmapMap = new LinkedHashMap<>();
+    currentSide = PictureMesher.PictureSide.FRONT;
+    setContentView(R.layout.activity_camera);
+
+
+    capture = (Button) findViewById(R.id.button_capture);
+    diagram = (TextView) findViewById(R.id.diagram);
+    pictureText = (TextView) findViewById(R.id.picture_text);
+    diagram.setText(currentSide.getAsString());
+    pictureMesher = new PictureMesher();
+    picturesFinished = false;
+
+
     requestCamera();
 
     capture.setOnClickListener(new View.OnClickListener() {
@@ -274,6 +276,7 @@ public class CameraActivity extends AppCompatActivity {
     float y = event.getY(0) - event.getY(1);
     return (float) Math.sqrt(x * x + y * y);
   }
+
   public void showInstructions(){
     new AlertDialog.Builder(context)
         .setMessage("Take pictures according to the diagram in the top right.")
