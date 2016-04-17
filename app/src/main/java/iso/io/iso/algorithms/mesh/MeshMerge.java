@@ -1,6 +1,9 @@
 package iso.io.iso.algorithms.mesh;
 
-import iso.io.iso.algorithms.geometry.EdgePointRegion;
+import java.util.HashMap;
+import java.util.regex.Matcher;
+
+import iso.io.iso.algorithms.AlgorithmConstants;
 import iso.io.iso.algorithms.geometry.MeshLayer;
 
 /**
@@ -10,64 +13,63 @@ public class MeshMerge {
 
     private MeshFace[] faces;
 
-    private float frontBound;
-    private float backBound;
-    private float leftBound;
-    private float rightBound;
-    private float topBound;
-    private float bottomBound;
+    float xBound = 0;
+    float yBound = 0;
+    float zBound = 0;
 
     public MeshMerge(MeshFace... faces) {
         this.faces = faces;
 
-        normalizeCoordinates();
     }
 
-    public void runMesh() {
-
-    }
-
-    public void cull() {
-        for (MeshFace face: faces) {
-            for(MeshLayer layer : face.getLayers()) {
-                for(MeshPoint point : layer.points) {
-                    if(point.x < leftBound) {
-                        leftBound = point.x;
+    public MeshCloud runMesh() {
+        for(MeshFace face: faces) {
+            switch (face.orientation) {
+                case FRONT:
+                    for(MeshPoint point : face.getLayers()[0].points) {
+                        if(Math.abs(point.x) > xBound) {
+                            xBound = point.x;
+                        }
                     }
+                    break;
 
-                    if(point.x > rightBound) {
-                        rightBound = point.x;
+                case TOP:
+                    for(MeshPoint point : face.getLayers()[0].points) {
+                        if(Math.abs(point.x) > yBound) {
+                            yBound = point.x;
+                        }
                     }
+                    break;
 
-                    if(point.y > topBound) {
-                        topBound = point.y;
+                case RIGHT:
+                    for(MeshPoint point : face.getLayers()[0].points) {
+                        if(Math.abs(point.x) > xBound) {
+                            zBound = point.x;
+                        }
                     }
-
-                    if (point.y < bottomBound) {
-                        bottomBound = point.y;
-                    }
-
-                    if (point.z > backBound) {
-                        backBound = point.z;
-                    }
-
-                    if(point.z < frontBound) {
-                        frontBound = point.z;
-                    }
-                }
+                    break;
             }
         }
 
+        normalizeCoordinates();
+
+        MeshCloud cloud = new MeshCloud(xBound, yBound, zBound);
+        for(MeshFace face : faces) {
+            for(MeshLayer layer : face.getLayers()) {
+                cloud.points.addAll(layer.points);
+            }
+        }
+        cloud.stupidFilter();
+
+        return cloud;
     }
 
     private void normalizeCoordinates() {
         for (int i = 0; i < faces.length; i++) {
 
-            MeshLayer[] layers = faces[i].getLayers();
-
-            for (int j = 0; j < layers[i].points.size(); j++) {
-                MeshPoint old = layers[i].points.get(j);
-                layers[i].points.set(j, normalizePoint(old, faces[i].orientation));
+            for (int j = 0; j < faces[i].getLayers()[i].points.size(); j++) {
+                MeshPoint old = faces[i].getLayers()[i].points.get(j);
+                faces[i].getLayers()[i].points.set(j, normalizePoint(old, faces[i].orientation));
             }
         }
     }

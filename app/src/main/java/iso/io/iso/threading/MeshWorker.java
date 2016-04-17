@@ -3,6 +3,8 @@ package iso.io.iso.threading;
 import java.util.LinkedHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import iso.io.iso.algorithms.mesh.MeshFace;
+
 /**
  * Created by tbrown on 4/16/16.
  */
@@ -11,7 +13,7 @@ public class MeshWorker {
   private Thread thread;
   private AtomicInteger threadsCompleted;
   private int numThreads;
-  private LinkedHashMap<PictureMesher.PictureSide,Object> completedDatas;
+  private LinkedHashMap<PictureMesher.PictureSide,MeshFace> completedDatas;
   private MeshWorkerCallback callback;
 
   public MeshWorker(int numThreads, MeshWorkerCallback callback){
@@ -29,6 +31,7 @@ public class MeshWorker {
   }
 
   public void work(){
+
     finished(null);
   }
 
@@ -36,7 +39,7 @@ public class MeshWorker {
     callback.meshWorkerCompleted(data);
   }
 
-  public void pictureWorkerFinished(PictureMesher.PictureSide side, Object data){
+  public void pictureWorkerFinished(PictureMesher.PictureSide side, MeshFace data){
     int completed = threadsCompleted.incrementAndGet();
     completedDatas.put(side,data);
     if(completed == numThreads){
