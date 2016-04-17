@@ -32,7 +32,6 @@ public class GridActivity extends AppCompatActivity {
       public void onItemClick(AdapterView<?> parent, View v,
           int position, long id) {
         Toast.makeText(context  ,"This grid was clicked, " + position,Toast.LENGTH_SHORT).show();
-
         // DO something
 
       }
