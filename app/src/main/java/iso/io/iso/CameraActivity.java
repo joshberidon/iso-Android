@@ -58,7 +58,7 @@ public class CameraActivity extends AppCompatActivity {
   private final Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
     @Override public void onPictureTaken(byte[] data, Camera camera) {
       Log.e(TAG, "JPEG onPictureTaken");
-      Toast.makeText(context, "Yo logcat is fucked", Toast.LENGTH_SHORT).show();
+      Toast.makeText(context, currentSide.getAsString() + " picture logged.", Toast.LENGTH_SHORT).show();
       Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
       bitmapMap.put(currentSide, bitmap);
       doneTakingPicture();
@@ -78,7 +78,7 @@ public class CameraActivity extends AppCompatActivity {
       pictureMesher.doCalcs(new MeshWorkerCallback() {
         @Override public void meshWorkerCompleted(Object data) {
           //TODO DONE
-          Toast.makeText(CameraActivity.this, "DO CALCS CALBACK BITCHES", Toast.LENGTH_SHORT)
+          Toast.makeText(CameraActivity.this, "Doing calculations for model.", Toast.LENGTH_LONG)
               .show();
         }
       });
