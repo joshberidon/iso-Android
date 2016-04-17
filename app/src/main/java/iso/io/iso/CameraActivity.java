@@ -53,6 +53,7 @@ public class CameraActivity extends AppCompatActivity {
   private final Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback() {
     @Override public void onShutter() {
       Log.e(TAG, "onShutter");
+      Toast.makeText(context, "Waiting on picture", Toast.LENGTH_SHORT).show();
     }
   };
 
@@ -87,7 +88,7 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     Uri destination = Uri.fromFile(file);
-    Crop.of(destination, destination).asSquare().start(this);
+    Crop.of(destination, destination).start(this);
   }
 
   public void slimShady(Bitmap bitmap){

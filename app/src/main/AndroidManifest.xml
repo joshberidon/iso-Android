@@ -42,7 +42,10 @@
         android:theme="@style/AppTheme.NoActionBar"
         >
     </activity>
-    <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
+    <activity
+        android:name="com.soundcloud.android.crop.CropImageActivity"
+        android:screenOrientation="landscape"
+        />
   </application>
 
 </manifest>
