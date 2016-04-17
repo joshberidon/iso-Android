@@ -20,26 +20,18 @@ import iso.io.iso.algorithms.AlgorithmConstants.MeshConstants;
 public class MeshProcess {
 
     private final Bitmap raw;
+    private ProjectionOrientation orientation;
     private final int rawHeight;
     private final int rawWidth;
 
-    public MeshProcess(Bitmap raw) {
+    public MeshProcess(Bitmap raw, ProjectionOrientation orientation) {
         this.raw = raw;
         this.rawHeight = raw.getHeight();
         this.rawWidth = raw.getWidth();
+        this.orientation = orientation;
     }
 
-    private void meshPipeline() {
-
-        // Remove all green(ish) pixels
-
-
-        // Iteratively detect edges of back of box
-
-
-        // Iterate through inside edge of bounding box to track features
-        // TODO: Hard code reference plane for now
-
+    public MeshFace meshPipeline() {
 
         // Create reference plane
         ReferencePlane realGeometry = new ReferencePlane(rawWidth, rawHeight,
@@ -58,11 +50,10 @@ public class MeshProcess {
 
         // Create f(n, r) projected layers to merge into the final model
         // n = number of reference divisions, r = desired mesh resolution
-
+        return new MeshFace(realGeometry, orientation, edgePoints);
     }
 
     private final ArrayList<EdgePointRegion> edgePoints = new ArrayList<>();
-
 
     // Synchronously updated while edgeRegionDetector inspects the specified region
     private final Detector.Listener<EdgeRegion> edgeRegionListener = new Detector.Listener<EdgeRegion>() {

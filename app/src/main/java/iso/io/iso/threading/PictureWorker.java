@@ -2,6 +2,10 @@ package iso.io.iso.threading;
 
 import android.graphics.Bitmap;
 
+import iso.io.iso.algorithms.mesh.MeshFace;
+import iso.io.iso.algorithms.mesh.MeshProcess;
+import iso.io.iso.algorithms.mesh.ProjectionOrientation;
+
 /**
  * Created by tbrown on 4/16/16.
  */
@@ -28,11 +32,35 @@ public class PictureWorker {
   }
 
   public void work(Bitmap file){
-    finished(null);
+    ProjectionOrientation orientation;
+
+    switch (this.side) {
+      case TOP:
+        orientation = ProjectionOrientation.TOP;
+        break;
+
+      case RIGHT:
+        orientation = ProjectionOrientation.RIGHT;
+        break;
+
+      case FRONT:
+        orientation = ProjectionOrientation.FRONT;
+        break;
+
+      default:
+        orientation = ProjectionOrientation.FRONT;
+        break;
+    }
+
+    MeshProcess process = new MeshProcess(file, orientation);
+    MeshFace face = process.meshPipeline();
+    face.generateMesh();
+
+    finished(face);
   }
 
   // Call this method when you are done so we can send it to mesh.
-  public void finished(Object data){
+  public void finished(MeshFace data){
     this.meshWorker.pictureWorkerFinished(this.side, data);
   }
 
