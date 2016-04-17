@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -29,12 +31,15 @@ import iso.io.iso.net.WebAPI;
 import iso.io.iso.net.WebData;
 import iso.io.iso.threading.MeshWorkerCallback;
 import iso.io.iso.threading.PictureMesher;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -57,6 +62,7 @@ public class CameraActivity extends AppCompatActivity {
   TextView pictureText;
   PictureMesher pictureMesher;
   Boolean picturesFinished;
+  Bitmap ogBitmap;
   float distance;
   private WebAPI webAPI;
   private String modalName;
@@ -101,11 +107,47 @@ public class CameraActivity extends AppCompatActivity {
     Crop.of(destination, destination).start(this);
   }
 
+  public Bitmap stripThisShit(Bitmap bitmap){
+    int width = bitmap.getWidth();
+    int height = bitmap.getHeight();
+
+    final int threshold = 15;
+
+    int thatGreenColor = this.getResources().getColor(R.color.fuck_your_green);
+    int greenRed = Color.red(thatGreenColor);
+    int greenGreen = Color.green(thatGreenColor);
+    int greenBlue = Color.blue(thatGreenColor);
+
+    for(int w = 0; w < width; w++){
+      for(int h = 0; h < height; h++){
+        int pixelAsInt = bitmap.getPixel(w, h);
+
+        int red = Color.red(pixelAsInt);
+        int green = Color.green(pixelAsInt);
+        int blue = Color.blue(pixelAsInt);
+
+        int redDiff = Math.abs(greenRed - red);
+        int greenDiff = Math.abs(greenGreen - green);
+        int blueDiff = Math.abs(greenBlue - blue);
+
+        if(redDiff < threshold && greenDiff < threshold && blueDiff < threshold){
+          bitmap.setPixel(w, h, getColor(R.color.clearIThink));
+        }
+      }
+    }
+
+    return bitmap;
+  }
+
   public void slimShady(Bitmap bitmap){
     // check if weve gotten all the pictures
-    bitmapMap.put(currentSide, bitmap);
+
+    // stripping this shit
+    bitmapMap.put(currentSide, stripThisShit(bitmap.copy(bitmap.getConfig(), true)));
+
     if (currentSide.equals(PictureMesher.PictureSide.FRONT)) {
       pictureMesher.addPicture(bitmapMap.get(currentSide), currentSide);
+      ogBitmap = bitmap;
       currentSide = PictureMesher.PictureSide.TOP;
     } else if (currentSide.equals(PictureMesher.PictureSide.TOP)) {
       pictureMesher.addPicture(bitmapMap.get(currentSide), currentSide);
@@ -345,7 +387,19 @@ public class CameraActivity extends AppCompatActivity {
   }
 
   public void readyToSendData(){
-    WebData data = new WebData(modalName, "This is data", "This is bitmap");
+
+    //int size = ogBitmap.getByteCount();
+    //ByteBuffer buffer = ByteBuffer.allocate(size);
+    //ogBitmap.copyPixelsToBuffer(buffer);
+    //String bitmapAsStr = Arrays.toString(buffer.array());
+    //String encoded = Base64.encodeToString(ogBitmap.by, Base64.DEFAULT);
+
+    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    ogBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+    byte[] byteArray = byteArrayOutputStream .toByteArray();
+    String bitmapAsStr = Base64.encodeToString(byteArray, Base64.DEFAULT);
+
+    WebData data = new WebData(modalName, "This is data", bitmapAsStr);
     webAPI.sendFile(data, new Callback<Response>() {
       @Override public void success(Response response, Response response2) {
         Log.e("@@@@@", "gg web works");
