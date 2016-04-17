@@ -4,10 +4,12 @@ import android.Manifest;
 import android.app.ActionBar;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
@@ -18,16 +20,29 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.soundcloud.android.crop.Crop;
+import iso.io.iso.net.WebAPI;
+import iso.io.iso.net.WebData;
 import iso.io.iso.threading.MeshWorkerCallback;
 import iso.io.iso.threading.PictureMesher;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import retrofit.Callback;
+import retrofit.RequestInterceptor;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 public class CameraActivity extends AppCompatActivity {
 
@@ -43,9 +58,13 @@ public class CameraActivity extends AppCompatActivity {
   PictureMesher pictureMesher;
   Boolean picturesFinished;
   float distance;
+  private WebAPI webAPI;
+  private String modalName;
+
   private final Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback() {
     @Override public void onShutter() {
       Log.e(TAG, "onShutter");
+      Toast.makeText(context, "Waiting on picture", Toast.LENGTH_SHORT).show();
     }
   };
 
@@ -66,7 +85,25 @@ public class CameraActivity extends AppCompatActivity {
   };
 
   private void doneTakingPicture() {
+    Bitmap bitmap = bitmapMap.get(currentSide);
+    File file = new File(context.getFilesDir(), String.format("bitmap%s.png", currentSide.getAsString()));
+    try {
+      FileOutputStream outputStream = new FileOutputStream(file);
+      bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+      outputStream.close();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    Uri destination = Uri.fromFile(file);
+    Crop.of(destination, destination).start(this);
+  }
+
+  public void slimShady(Bitmap bitmap){
     // check if weve gotten all the pictures
+    bitmapMap.put(currentSide, bitmap);
     if (currentSide.equals(PictureMesher.PictureSide.FRONT)) {
       pictureMesher.addPicture(bitmapMap.get(currentSide), currentSide);
       currentSide = PictureMesher.PictureSide.TOP;
@@ -80,6 +117,7 @@ public class CameraActivity extends AppCompatActivity {
           //TODO DONE
           Toast.makeText(CameraActivity.this, "Doing calculations for model.", Toast.LENGTH_LONG)
               .show();
+          modalThingShow();
         }
       });
     }
@@ -95,7 +133,15 @@ public class CameraActivity extends AppCompatActivity {
         camera.startPreview();
       }
     });
+  }
 
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent result) {
+    if (requestCode == Crop.REQUEST_CROP && resultCode == RESULT_OK) {
+      Log.e("@@@@", "wtf shit actually worked");
+      Bitmap bitmap = BitmapFactory.decodeFile((new File(context.getFilesDir(), String.format("bitmap%s.png", currentSide.getAsString()))).getAbsolutePath());
+      slimShady(bitmap);
+    }
   }
 
   @Override protected void onCreate(Bundle savedInstanceState) {
@@ -104,11 +150,20 @@ public class CameraActivity extends AppCompatActivity {
     View decorView = getWindow().getDecorView();
     int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
     decorView.setSystemUiVisibility(uiOptions);
-    if(getActionBar() != null){
-      ActionBar actionBar = getActionBar();
-      actionBar.hide();
-    }
 
+    RequestInterceptor interceptor = new RequestInterceptor() {
+      @Override public void intercept(RequestFacade request) {
+        request.addHeader("Content-Type", "application/json");
+      }
+    };
+
+    RestAdapter restAdapter = new RestAdapter.Builder()
+        .setEndpoint("https://isodfw.herokuapp.com")
+        .setLogLevel(RestAdapter.LogLevel.FULL)
+        .setRequestInterceptor(interceptor)
+        .build();
+
+    webAPI = restAdapter.create(WebAPI.class);
 
     bitmapMap = new LinkedHashMap<>();
     currentSide = PictureMesher.PictureSide.FRONT;
@@ -208,6 +263,10 @@ public class CameraActivity extends AppCompatActivity {
 
   @Override protected void onResume() {
     super.onResume();
+    if(getActionBar() != null){
+      ActionBar actionBar = getActionBar();
+      actionBar.hide();
+    }
   }
 
   @Override
@@ -283,6 +342,42 @@ public class CameraActivity extends AppCompatActivity {
             // continue with delete
           }
         }).show();
+  }
+
+  public void readyToSendData(){
+    WebData data = new WebData(modalName, "This is data", "This is bitmap");
+    webAPI.sendFile(data, new Callback<Response>() {
+      @Override public void success(Response response, Response response2) {
+        Log.e("@@@@@", "gg web works");
+      }
+
+      @Override public void failure(RetrofitError error) {
+        Log.e("@@@@@@", "retrofit failed yo: " + error.getMessage());
+      }
+    });
+  }
+
+  public void modalThingShow(){
+    AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+    alert.setTitle("Your model needs a name!");
+    alert.setMessage("Please set a name for your model.");
+
+    // Set an EditText view to get user input
+    final EditText input = new EditText(this);
+    alert.setView(input);
+
+    alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+      public void onClick(DialogInterface dialog, int whichButton) {
+
+        // Do something with value!
+        Log.e("@@@@", "your thing is called: " + input.getText().toString());
+        modalName = input.getText().toString();
+        readyToSendData();
+      }
+    });
+
+    alert.show();
   }
 }
 
