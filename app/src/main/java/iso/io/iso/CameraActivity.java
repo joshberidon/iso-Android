@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -74,7 +75,6 @@ public class CameraActivity extends AppCompatActivity {
   };
 
   private void doneTakingPicture() {
-
     Bitmap bitmap = bitmapMap.get(currentSide);
     File file = new File(context.getFilesDir(), String.format("bitmap%s.png", currentSide.getAsString()));
     try {
@@ -107,6 +107,7 @@ public class CameraActivity extends AppCompatActivity {
           //TODO DONE
           Toast.makeText(CameraActivity.this, "Doing calculations for model.", Toast.LENGTH_LONG)
               .show();
+          modalThingShow();
         }
       });
     }
@@ -318,6 +319,27 @@ public class CameraActivity extends AppCompatActivity {
             // continue with delete
           }
         }).show();
+  }
+
+  public void modalThingShow(){
+    AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+    alert.setTitle("Your model needs a name!");
+    alert.setMessage("Please set a name for your model.");
+
+    // Set an EditText view to get user input
+    final EditText input = new EditText(this);
+    alert.setView(input);
+
+    alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+      public void onClick(DialogInterface dialog, int whichButton) {
+
+        // Do something with value!
+        Log.e("@@@@", "your thing is called: " + input.getText().toString());
+      }
+    });
+
+    alert.show();
   }
 }
 
