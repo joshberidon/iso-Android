@@ -35,7 +35,7 @@ public class AlgorithmConstants {
     }
 
     public class MeshConstants {
-        public static final int MESH_PROJECTION_LAYERS = 40; // Estimate quarter inch divisions
-        public static final float EDGE_THRESHOLD_SCALE = 0.063f;
+        public static final int MESH_PROJECTION_LAYERS = 20; // Estimate quarter inch divisions
+        public static final float EDGE_THRESHOLD_SCALE = 0.125f;
     }
 }

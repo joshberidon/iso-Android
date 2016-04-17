@@ -21,8 +21,6 @@ public abstract class GeoRegion<T extends GeoRegion> {
 
         this.y1 = y1;
         this.y2 = y2;
-
-        this.subregions = getSubregions();
     }
 
     public GeoRegion(int x1, int x2, int y1, int y2, int maxSize) {
@@ -33,8 +31,6 @@ public abstract class GeoRegion<T extends GeoRegion> {
         this.y2 = y2;
 
         this.maxSize = maxSize;
-
-        this.subregions = getSubregions();
     }
 
     public abstract T[] getSubregions();

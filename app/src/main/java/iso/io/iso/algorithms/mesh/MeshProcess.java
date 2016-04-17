@@ -42,7 +42,7 @@ public class MeshProcess {
 
         // Detect edge points
         float threshold = MeshConstants.EDGE_THRESHOLD_SCALE;
-        int edgeResolution = (int) Math.min(threshold * rawHeight, threshold * rawWidth);
+        int edgeResolution = (int) Math.max(threshold * rawHeight, threshold * rawWidth);
 
         Detector<EdgeRegion> edgeRegionDetector = new Detector<>(raw, edgeRegionListener, edgeResolution);
         edgeRegionDetector.inspect(new EdgeRegion(0, rawWidth, 0, rawHeight)); // inspect the whole thing, broken down recursively
@@ -68,8 +68,9 @@ public class MeshProcess {
         }
 
         @Override
-        public void onFeatureDetected(EdgeRegion region) {
-            edgePoints.add(new EdgePointRegion(region.getCenterX(), region.getCenterY()));
+        public void onFeatureDetected(int x1, int x2, int y1, int y2) {
+            edgePoints.add(new EdgePointRegion(x1, y1));
+            Log.e("TAG", "Fuckin detected.");
         }
     };
 }

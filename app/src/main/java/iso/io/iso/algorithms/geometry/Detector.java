@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 
 import java.util.ArrayList;
 
+import iso.io.iso.algorithms.AlgorithmConstants;
+
 /**
  * Created by Jacob on 4/17/16.
  */
@@ -27,14 +29,14 @@ public class Detector<T extends GeoRegion<T>> {
         int xSz = region.x2 - region.x1;
         int ySz = region.y2 - region.y1;
 
-        if(((xSz < region.maxSize && ySz < region.maxSize) || region.maxSize < 0) && region.hasFeature(reference)) {
-            listener.onFeatureDetected(region);
-        }
+        int patchX = (int) (AlgorithmConstants.MeshConstants.EDGE_THRESHOLD_SCALE * xSz);
+        int patchY = (int) (AlgorithmConstants.MeshConstants.EDGE_THRESHOLD_SCALE * ySz);
 
-        if ((ySz > threshold)
-                && xSz > threshold) {
-            for (T sub : region.subregions) {
-                inspect(sub);
+        for(int i = 0; i < xSz - patchX - 1; i += patchX) {
+            for (int j = 0; j <ySz - patchX - 1; j += patchY) {
+                if(region.hasFeature(reference)) {
+                    listener.onFeatureDetected(i, j, i + xSz, j + ySz);
+                }
             }
         }
     }
@@ -42,6 +44,6 @@ public class Detector<T extends GeoRegion<T>> {
     public interface Listener<T extends GeoRegion> {
         void onRegionStarted(T region);
         void onRegionFinished(T region);
-        void onFeatureDetected(T region);
+        void onFeatureDetected(int x1, int x2, int y1, int y2);
     }
 }

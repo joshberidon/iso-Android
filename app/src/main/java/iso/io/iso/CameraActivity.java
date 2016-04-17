@@ -27,6 +27,9 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.soundcloud.android.crop.Crop;
+
+import iso.io.iso.algorithms.AlgorithmConstants;
+import iso.io.iso.algorithms.mesh.MeshCloud;
 import iso.io.iso.net.WebAPI;
 import iso.io.iso.net.WebData;
 import iso.io.iso.threading.MeshWorkerCallback;
@@ -43,6 +46,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+
+import iso.io.iso.utils.ImageUtils;
 import retrofit.Callback;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
@@ -85,7 +90,8 @@ public class CameraActivity extends AppCompatActivity {
     @Override public void onPictureTaken(byte[] data, Camera camera) {
       Log.e(TAG, "JPEG onPictureTaken");
       Toast.makeText(context, currentSide.getAsString() + " picture logged.", Toast.LENGTH_SHORT).show();
-      Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+
+      Bitmap bitmap = ImageUtils.scaleBitmapToDimension(BitmapFactory.decodeByteArray(data, 0, data.length), AlgorithmConstants.Preprocess.IMAGE_SIZE_WVGA);
       bitmapMap.put(currentSide, bitmap);
       doneTakingPicture();
     }
@@ -144,7 +150,7 @@ public class CameraActivity extends AppCompatActivity {
     // check if weve gotten all the pictures
 
     // stripping this shit
-    Bitmap smallerBitmap = CameraActivity.scaleBitmapToDimension(bitmap, 800);
+    Bitmap smallerBitmap = CameraActivity.scaleBitmapToDimension(bitmap, 480);
     bitmapMap.put(currentSide, stripThisShit(smallerBitmap.copy(bitmap.getConfig(), true)));
 
     if (currentSide.equals(PictureMesher.PictureSide.FRONT)) {
@@ -158,7 +164,7 @@ public class CameraActivity extends AppCompatActivity {
     } else {
       picturesFinished = true;
       pictureMesher.doCalcs(new MeshWorkerCallback() {
-        @Override public void meshWorkerCompleted(Object data) {
+        @Override public void meshWorkerCompleted(MeshCloud data) {
           //TODO DONE
           Toast.makeText(CameraActivity.this, "Doing calculations for model.", Toast.LENGTH_LONG)
               .show();
