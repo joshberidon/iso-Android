@@ -1,5 +1,7 @@
 package iso.io.iso;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -9,9 +11,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import iso.io.iso.net.STLFile;
+import android.widget.Toast;
+import iso.io.iso.net.BitmapShit;
 import iso.io.iso.net.WebAPI;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 import retrofit.Callback;
+import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -35,18 +41,33 @@ public class MainActivity extends AppCompatActivity {
       }
     });
 
+    RequestInterceptor interceptor = new RequestInterceptor() {
+      @Override public void intercept(RequestFacade request) {
+        request.addHeader("Content-Type", "application/json");
+      }
+    };
+
     RestAdapter restAdapter = new RestAdapter.Builder()
         .setEndpoint("https://isodfw.herokuapp.com")
         .setLogLevel(RestAdapter.LogLevel.FULL)
+        .setRequestInterceptor(interceptor)
         .build();
 
     webAPI = restAdapter.create(WebAPI.class);
 
-    STLFile file = new STLFile();
-    file.fileName = "rawrggg";
-    file.data = "hellow I am the body of this thing";
-    webAPI.sendFile(file.fileName, file.data, new Callback<Response>() {
-      @Override public void success(Response response, Response response2) {
+    Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_action_name);
+    int size = bitmap.getByteCount();
+    ByteBuffer buffer = ByteBuffer.allocate(size);
+    bitmap.copyPixelsToBuffer(buffer);
+    String x = Arrays.toString(buffer.array());
+
+    BitmapShit asdf = new BitmapShit("qqFilenameqq", "this is an stl file hopefully at some point", x);
+
+    Toast.makeText(this, x, Toast.LENGTH_LONG).show();
+
+
+    webAPI.sendFile(asdf, new Callback<Response>() {
+      @Override public void success(Response rsponse, Response response2) {
         Log.e("@@@@@", "shit works yo");
       }
 
