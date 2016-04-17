@@ -112,7 +112,7 @@ public class CameraActivity extends AppCompatActivity {
     int width = bitmap.getWidth();
     int height = bitmap.getHeight();
 
-    final int threshold = 100;
+    final int threshold = 150;
 
     int thatGreenColor = this.getResources().getColor(R.color.fuck_your_green);
     int greenRed = Color.red(thatGreenColor);
@@ -144,12 +144,13 @@ public class CameraActivity extends AppCompatActivity {
     // check if weve gotten all the pictures
 
     // stripping this shit
-    bitmapMap.put(currentSide, stripThisShit(bitmap.copy(bitmap.getConfig(), true)));
+    Bitmap smallerBitmap = CameraActivity.scaleBitmapToDimension(bitmap, 800);
+    bitmapMap.put(currentSide, stripThisShit(smallerBitmap.copy(bitmap.getConfig(), true)));
 
     if (currentSide.equals(PictureMesher.PictureSide.FRONT)) {
       pictureMesher.addPicture(bitmapMap.get(currentSide), currentSide);
-      //ogBitmap = bitmap;// TODO
-      ogBitmap = bitmapMap.get(currentSide);
+      ogBitmap = bitmap;// TODO
+      //ogBitmap = bitmapMap.get(currentSide);
       currentSide = PictureMesher.PictureSide.TOP;
     } else if (currentSide.equals(PictureMesher.PictureSide.TOP)) {
       pictureMesher.addPicture(bitmapMap.get(currentSide), currentSide);
@@ -227,7 +228,7 @@ public class CameraActivity extends AppCompatActivity {
     capture.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
         Log.e("Log", "taking picture");
-        p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+        //p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
         camera.setParameters(p);
         camera.startPreview();
         camera.takePicture(shutterCallback, rawCallback, jpegCallback);
@@ -442,10 +443,31 @@ public class CameraActivity extends AppCompatActivity {
 
   @Override protected void onPause() {
     super.onPause();
-    p.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-    camera.setParameters(p);
-    camera.stopPreview();
-    camera.release();
+    //p.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+    //camera.setParameters(p);
+    //camera.stopPreview();
+    //camera.release();
+  }
+
+  public static Bitmap scaleBitmapToDimension(Bitmap in, int maxDimension) {
+    float startH = in.getHeight();
+    float startW = in.getWidth();
+
+    float compressedH = maxDimension;
+    float compressedW = maxDimension;
+
+    if (startH > startW) {
+      compressedW = maxDimension * (startW / startH);
+    } else if (startW > startH) {
+      compressedH = maxDimension * (startH / startW);
+    }
+
+    return Bitmap.createScaledBitmap(
+        in,
+        (int) compressedW,
+        (int) compressedH,
+        true
+    );
   }
 }
 
