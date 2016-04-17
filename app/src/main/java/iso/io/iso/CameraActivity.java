@@ -4,10 +4,12 @@ import android.Manifest;
 import android.app.ActionBar;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
@@ -21,9 +23,14 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.soundcloud.android.crop.Crop;
 import iso.io.iso.threading.MeshWorkerCallback;
 import iso.io.iso.threading.PictureMesher;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -66,7 +73,26 @@ public class CameraActivity extends AppCompatActivity {
   };
 
   private void doneTakingPicture() {
+
+    Bitmap bitmap = bitmapMap.get(currentSide);
+    File file = new File(context.getFilesDir(), String.format("bitmap%s.png", currentSide.getAsString()));
+    try {
+      FileOutputStream outputStream = new FileOutputStream(file);
+      bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+      outputStream.close();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    Uri destination = Uri.fromFile(file);
+    Crop.of(destination, destination).asSquare().start(this);
+  }
+
+  public void slimShady(Bitmap bitmap){
     // check if weve gotten all the pictures
+    bitmapMap.put(currentSide, bitmap);
     if (currentSide.equals(PictureMesher.PictureSide.FRONT)) {
       pictureMesher.addPicture(bitmapMap.get(currentSide), currentSide);
       currentSide = PictureMesher.PictureSide.TOP;
@@ -95,7 +121,15 @@ public class CameraActivity extends AppCompatActivity {
         camera.startPreview();
       }
     });
+  }
 
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent result) {
+    if (requestCode == Crop.REQUEST_CROP && resultCode == RESULT_OK) {
+      Log.e("@@@@", "wtf shit actually worked");
+      Bitmap bitmap = BitmapFactory.decodeFile((new File(context.getFilesDir(), String.format("bitmap%s.png", currentSide.getAsString()))).getAbsolutePath());
+      slimShady(bitmap);
+    }
   }
 
   @Override protected void onCreate(Bundle savedInstanceState) {
