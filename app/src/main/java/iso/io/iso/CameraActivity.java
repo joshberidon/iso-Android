@@ -413,11 +413,17 @@ public class CameraActivity extends AppCompatActivity {
     byte[] byteArray = byteArrayOutputStream .toByteArray();
     String bitmapAsStr = Base64.encodeToString(byteArray, Base64.DEFAULT);
 
-    for(MeshPoint point : cloud.points){
-      Log.e(TAG, String.format("%f %f %f", point.x, point.y, point.z));
-    }
+    StringBuilder builder = new StringBuilder();
+    builder.append("[");
 
-    WebData data = new WebData(modalName, "This is data", bitmapAsStr);
+    for(MeshPoint point : cloud.points){
+      builder.append(String.format("[%f, %f, %f],", point.x, point.y, point.z));
+    }
+    builder.append("]");
+
+    Log.e("@@@@", builder.toString());
+
+    WebData data = new WebData(modalName, builder.toString(), bitmapAsStr);
     webAPI.sendFile(data, new Callback<Response>() {
       @Override public void success(Response response, Response response2) {
         Log.e(TAG, "gg web works");
