@@ -3,6 +3,7 @@ package iso.io.iso;
 import android.Manifest;
 import android.app.ActionBar;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -31,7 +33,6 @@ public class CameraActivity extends AppCompatActivity {
 
   Camera camera;
   Button capture;
-  Button finished;
   String TAG = this.getClass().getSimpleName();
   CameraPreview cameraPreview;
   Context context;
@@ -56,7 +57,6 @@ public class CameraActivity extends AppCompatActivity {
   private final Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
     @Override public void onPictureTaken(byte[] data, Camera camera) {
       Log.e(TAG, "JPEG onPictureTaken");
-      enableFinished();
       Toast.makeText(context, "Yo logcat is fucked", Toast.LENGTH_SHORT).show();
       Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
       bitmapMap.put(currentSide, bitmap);
@@ -87,6 +87,7 @@ public class CameraActivity extends AppCompatActivity {
       @Override public void run() {
         if (picturesFinished) {
           diagram.setVisibility(View.INVISIBLE);
+          capture.setVisibility(View.INVISIBLE);
         }
         diagram.setText(currentSide.getAsString());
         camera.startPreview();
@@ -104,12 +105,12 @@ public class CameraActivity extends AppCompatActivity {
     currentSide = PictureMesher.PictureSide.FRONT;
     setContentView(R.layout.activity_camera);
     capture = (Button) findViewById(R.id.button_capture);
-    finished = (Button) findViewById(R.id.button_finished);
     diagram = (TextView) findViewById(R.id.diagram);
     diagram.setText(currentSide.getAsString());
     pictureMesher = new PictureMesher();
     picturesFinished = false;
     FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+
 
     View decorView = getWindow().getDecorView();
     // Hide the status bar.
@@ -121,21 +122,13 @@ public class CameraActivity extends AppCompatActivity {
       ActionBar actionBar = getActionBar();
       actionBar.hide();
     }
+    showInstructions();
     requestCamera();
-    disableFinished();
 
     capture.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
         Log.e("Log", "taking picture");
         camera.takePicture(shutterCallback, rawCallback, jpegCallback);
-
-        disableFinished();
-      }
-    });
-
-    finished.setOnClickListener(new View.OnClickListener() {
-      @Override public void onClick(View v) {
-        camera.startPreview();
       }
     });
   }
@@ -157,13 +150,6 @@ public class CameraActivity extends AppCompatActivity {
     return mediaFile;
   }
 
-  public void enableFinished() {
-    finished.setEnabled(true);
-  }
-
-  public void disableFinished() {
-    finished.setEnabled(false);
-  }
 
   public void requestCamera() {
     if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
@@ -287,6 +273,15 @@ public class CameraActivity extends AppCompatActivity {
     float x = event.getX(0) - event.getX(1);
     float y = event.getY(0) - event.getY(1);
     return (float) Math.sqrt(x * x + y * y);
+  }
+  public void showInstructions(){
+    new AlertDialog.Builder(context)
+        .setMessage("Take pictures according to the diagram in the top right.")
+        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog, int which) {
+            // continue with delete
+          }
+        }).show();
   }
 }
 
