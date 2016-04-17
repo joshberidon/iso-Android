@@ -66,6 +66,7 @@ public class CameraActivity extends AppCompatActivity {
   float distance;
   private WebAPI webAPI;
   private String modalName;
+  Camera.Parameters p;
 
   private final Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback() {
     @Override public void onShutter() {
@@ -225,6 +226,9 @@ public class CameraActivity extends AppCompatActivity {
     capture.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
         Log.e("Log", "taking picture");
+        p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+        camera.setParameters(p);
+        camera.startPreview();
         camera.takePicture(shutterCallback, rawCallback, jpegCallback);
       }
     });
@@ -294,6 +298,7 @@ public class CameraActivity extends AppCompatActivity {
 
   public void loadCamera() {
     camera = getCameraInstance();
+    p  = camera.getParameters();
     cameraPreview = new CameraPreview(this, camera);
     FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
     if (camera != null) {
@@ -432,6 +437,14 @@ public class CameraActivity extends AppCompatActivity {
     });
 
     alert.show();
+  }
+
+  @Override protected void onPause() {
+    super.onPause();
+    p.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+    camera.setParameters(p);
+    camera.stopPreview();
+    camera.release();
   }
 }
 

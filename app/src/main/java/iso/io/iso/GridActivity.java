@@ -1,6 +1,7 @@
 package iso.io.iso;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
+import iso.io.iso.threading.ModelActivity;
 
 public class GridActivity extends AppCompatActivity {
   GridView gridView;
@@ -33,6 +35,8 @@ public class GridActivity extends AppCompatActivity {
           int position, long id) {
         Toast.makeText(context  ,"This grid was clicked, " + position,Toast.LENGTH_SHORT).show();
         // DO something
+        Intent intent = new Intent(context, ModelActivity.class);
+        startActivity(intent);
 
       }
     });
