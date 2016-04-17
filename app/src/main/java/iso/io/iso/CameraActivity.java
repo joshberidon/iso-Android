@@ -203,7 +203,7 @@ public class CameraActivity extends AppCompatActivity {
     };
 
     RestAdapter restAdapter = new RestAdapter.Builder()
-        .setEndpoint("https://isodfw.herokuapp.com")
+        .setEndpoint("https://isoapp.herokuapp.com")
         .setLogLevel(RestAdapter.LogLevel.FULL)
         .setRequestInterceptor(interceptor)
         .build();
