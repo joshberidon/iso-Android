@@ -15,10 +15,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+import iso.io.iso.threading.MeshWorkerCallback;
+import iso.io.iso.threading.PictureMesher;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedHashMap;
 
 public class CameraActivity extends AppCompatActivity {
 
@@ -28,7 +32,11 @@ public class CameraActivity extends AppCompatActivity {
   String TAG = this.getClass().getSimpleName();
   CameraPreview cameraPreview;
   Context context;
-
+  LinkedHashMap<PictureMesher.PictureSide, Bitmap> bitmapMap;
+  PictureMesher.PictureSide currentSide;
+  TextView diagram;
+  PictureMesher pictureMesher;
+  Boolean picturesFinished;
   private final Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback() {
     @Override public void onShutter() {
       Log.e(TAG, "onShutter");
@@ -45,21 +53,58 @@ public class CameraActivity extends AppCompatActivity {
     @Override public void onPictureTaken(byte[] data, Camera camera) {
       Log.e(TAG, "JPEG onPictureTaken");
       enableFinished();
-      camera.startPreview();
       Toast.makeText(context, "Yo logcat is fucked", Toast.LENGTH_SHORT).show();
-
       Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-
+      bitmapMap.put(currentSide, bitmap);
+      doneTakingPicture();
 
     }
   };
 
+  private void doneTakingPicture() {
+    // check if weve gotten all the pictures
+    if(currentSide.equals(PictureMesher.PictureSide.FRONT)){
+      pictureMesher.addPicture(bitmapMap.get(currentSide),currentSide);
+      currentSide = PictureMesher.PictureSide.TOP;
+    } else if(currentSide.equals(PictureMesher.PictureSide.TOP)){
+      pictureMesher.addPicture(bitmapMap.get(currentSide),currentSide);
+      currentSide = PictureMesher.PictureSide.RIGHT;
+    } else {
+        picturesFinished = true;
+        pictureMesher.doCalcs(new MeshWorkerCallback() {
+          @Override public void meshWorkerCompleted(Object data) {
+            //TODO DONE
+            Toast.makeText(CameraActivity.this, "DO CALCS CALBACK BITCHES", Toast.LENGTH_SHORT).show();
+          }
+        });
+    }
+    // if not
+    this.runOnUiThread(new Runnable() {
+      @Override public void run() {
+        if(picturesFinished){
+          diagram.setVisibility(View.INVISIBLE);
+        }
+        diagram.setText(currentSide.getAsString());
+        camera.startPreview();
+        // update ui and
+      }
+    });
+
+    // else lets start fucikng making shit
+  }
+
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     this.context = this;
+    bitmapMap = new LinkedHashMap<>();
+    currentSide = PictureMesher.PictureSide.FRONT;
     setContentView(R.layout.activity_camera);
     capture = (Button) findViewById(R.id.button_capture);
     finished = (Button) findViewById(R.id.button_finished);
+    diagram = (TextView) findViewById(R.id.diagram);
+    diagram.setText(currentSide.getAsString());
+    pictureMesher = new PictureMesher();
+    picturesFinished = false;
 
     requestCamera();
     disableFinished();

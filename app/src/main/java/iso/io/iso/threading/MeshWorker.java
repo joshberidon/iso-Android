@@ -1,7 +1,6 @@
 package iso.io.iso.threading;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -12,7 +11,7 @@ public class MeshWorker {
   private Thread thread;
   private AtomicInteger threadsCompleted;
   private int numThreads;
-  private ArrayList<Object> completedDatas;
+  private LinkedHashMap<PictureMesher.PictureSide,Object> completedDatas;
   private MeshWorkerCallback callback;
 
   public MeshWorker(int numThreads, MeshWorkerCallback callback){
@@ -20,7 +19,7 @@ public class MeshWorker {
     this.numThreads = numThreads;
     this.callback = callback;
     this.threadsCompleted = new AtomicInteger();
-    this.completedDatas = (ArrayList<Object>) Collections.synchronizedList(new ArrayList<>(numThreads));
+    this.completedDatas = new LinkedHashMap<>(numThreads);
 
     thread = new Thread(new Runnable() {
       @Override public void run() {
@@ -39,13 +38,10 @@ public class MeshWorker {
 
   public void pictureWorkerFinished(PictureMesher.PictureSide side, Object data){
     int completed = threadsCompleted.incrementAndGet();
-    completedDatas.set(side.getIndex(), data);
+    completedDatas.put(side,data);
     if(completed == numThreads){
       this.thread.run();
     }
   }
 }
 
-interface MeshWorkerCallback{
-  void meshWorkerCompleted(Object data);
-}

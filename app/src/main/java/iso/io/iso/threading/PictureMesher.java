@@ -1,6 +1,6 @@
 package iso.io.iso.threading;
 
-import java.io.File;
+import android.graphics.Bitmap;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
@@ -11,7 +11,7 @@ public class PictureMesher {
 
   public enum PictureSide{
     FRONT(0),
-    LEFT(1),
+    TOP(1),
     RIGHT(2);
 
     private int index;
@@ -31,7 +31,7 @@ public class PictureMesher {
           side = FRONT;
           break;
         case 1:
-          side = LEFT;
+          side = TOP;
           break;
         case 2:
           side = RIGHT;
@@ -39,28 +39,44 @@ public class PictureMesher {
       }
       return side;
     }
+    public String getAsString(){
+      String str = null;
+      switch (this.index){
+        case 0:
+          str = "Front";
+          break;
+        case 1:
+          str = "Top";
+          break;
+        case 2:
+          str = "Right";
+          break;
+      }
+
+      return str;
+    }
   }
 
-  private LinkedHashMap<Integer, File> fileMap;
+  private LinkedHashMap<Integer, Bitmap> bitmapMap;
   private MeshWorker meshWorker;
   private ArrayList<PictureWorker> pictureWorkers;
 
   public PictureMesher(){
-    fileMap = new LinkedHashMap<>();
+    bitmapMap = new LinkedHashMap<>();
   }
 
-  public void addPicture(File pictureFile, PictureSide side){
-    fileMap.put(side.getIndex(), pictureFile);
+  public void addPicture(Bitmap pictureFile, PictureSide side){
+    bitmapMap.put(side.getIndex(), pictureFile);
   }
 
   public void doCalcs(MeshWorkerCallback callback){
-    pictureWorkers = new ArrayList<>(fileMap.keySet().size());
+    pictureWorkers = new ArrayList<>(bitmapMap.keySet().size());
 
     // This guy will start on its own
-    this.meshWorker = new MeshWorker(fileMap.keySet().size(), callback);
+    this.meshWorker = new MeshWorker(bitmapMap.keySet().size(), callback);
 
-    for(Integer i : fileMap.keySet()){
-      PictureWorker worker = new PictureWorker(meshWorker, PictureSide.getFromInteger(i), fileMap.get(i));
+    for(Integer i : bitmapMap.keySet()){
+      PictureWorker worker = new PictureWorker(meshWorker, PictureSide.getFromInteger(i), bitmapMap.get(i));
       worker.beginWorking();
       pictureWorkers.add(worker);
 
