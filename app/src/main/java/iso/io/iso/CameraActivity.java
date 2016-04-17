@@ -70,6 +70,7 @@ public class CameraActivity extends AppCompatActivity {
   float distance;
   private WebAPI webAPI;
   private String modalName;
+  private MeshCloud cloud;
   Camera.Parameters p;
   public final String TAG = this.getClass().getSimpleName();
 
@@ -149,7 +150,7 @@ public class CameraActivity extends AppCompatActivity {
     // check if weve gotten all the pictures
 
     // stripping this shit
-    Bitmap s∂mallerBitmap = CameraActivity.scaleBitmapToDimension(bitmap, 480);
+    Bitmap smallerBitmap = CameraActivity.scaleBitmapToDimension(bitmap, 480);
     bitmapMap.put(currentSide, stripThisShit(smallerBitmap.copy(bitmap.getConfig(), true)));
 
     if (currentSide.equals(PictureMesher.PictureSide.FRONT)) {
@@ -167,10 +168,8 @@ public class CameraActivity extends AppCompatActivity {
           //TODO DONE
           Toast.makeText(CameraActivity.this, "Doing calculations for model.", Toast.LENGTH_LONG)
               .show();
+          cloud = data;
           modalThingShow();
-          for(MeshPoint point : data.points){
-            Log.e(TAG, String.format("%d %d %d", point.x, point.y, point.z));
-          }
         }
       });
     }
@@ -413,6 +412,10 @@ public class CameraActivity extends AppCompatActivity {
     ogBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
     byte[] byteArray = byteArrayOutputStream .toByteArray();
     String bitmapAsStr = Base64.encodeToString(byteArray, Base64.DEFAULT);
+
+    for(MeshPoint point : cloud.points){
+      Log.e(TAG, String.format("%f %f %f", point.x, point.y, point.z));
+    }
 
     WebData data = new WebData(modalName, "This is data", bitmapAsStr);
     webAPI.sendFile(data, new Callback<Response>() {

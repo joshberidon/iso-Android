@@ -1,6 +1,8 @@
 package iso.io.iso.algorithms.geometry;
 
+import android.content.Loader;
 import android.graphics.Bitmap;
+import android.util.Log;
 
 /**
  * Created by Jacob on 4/17/16.
@@ -46,12 +48,18 @@ public abstract class GeoRegion<T extends GeoRegion> {
 
     public int[][] getPixels(Bitmap bitmap) {
         int width = x2 - x1;
-        int height = y2 - y1;
+        int height = y2 - y1 + 1;
+
+        Log.e("@@@", width + "    fjksjdfkjs    " + height);
 
         int[][] colors = new int[height][width];
 
         for(int i = 0; i < height; i++) {
-            bitmap.getPixels(colors[i], 0, width, x1, y1 + i, width, 1);
+            for(int j = 0; j < width; j++) {
+                if(y1 + i < bitmap.getHeight() && x1 + j < bitmap.getWidth()) {
+                    colors[i][j] = bitmap.getPixel(x1 + j, y1 + i);
+                }
+            }
         }
 
         return colors;

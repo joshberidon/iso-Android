@@ -35,7 +35,8 @@ public class MeshWorker {
   }
 
   public void work(){
-    MeshMerge mergerThingamajic = new MeshMerge((MeshFace[])(new ArrayList<MeshFace>(completedDatas.values())).toArray());
+    MeshFace[] faces = new MeshFace[completedDatas.values().size()];
+    MeshMerge mergerThingamajic = new MeshMerge(completedDatas.values().toArray(faces));
     MeshCloud cloud = mergerThingamajic.runMesh();
     finished(cloud);
   }

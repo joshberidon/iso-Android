@@ -1,7 +1,9 @@
 package iso.io.iso.algorithms.geometry;
 
+import android.content.Loader;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.util.Log;
 
 import iso.io.iso.algorithms.AlgorithmConstants.ColorThresholds;
 
@@ -37,6 +39,8 @@ public class EdgeRegion extends GeoRegion<EdgeRegion> {
         int alpha = sumAlpha(reference);
 
         float alphaRatio = (float) alpha / (255 * (y2-y1) * (x2-x1));
+
+        Log.e("Alpha Ratio", alphaRatio + " was the calc: sum = " + alpha);
 
         return alphaRatio > ColorThresholds.MIN_ALPHA
                 && alphaRatio < ColorThresholds.MAX_ALPHA;
