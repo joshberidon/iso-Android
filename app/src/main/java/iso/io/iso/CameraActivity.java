@@ -27,9 +27,9 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.soundcloud.android.crop.Crop;
-
 import iso.io.iso.algorithms.AlgorithmConstants;
 import iso.io.iso.algorithms.mesh.MeshCloud;
+import iso.io.iso.algorithms.mesh.MeshPoint;
 import iso.io.iso.net.WebAPI;
 import iso.io.iso.net.WebData;
 import iso.io.iso.threading.MeshWorkerCallback;
@@ -58,7 +58,6 @@ public class CameraActivity extends AppCompatActivity {
 
   Camera camera;
   Button capture;
-  String TAG = this.getClass().getSimpleName();
   CameraPreview cameraPreview;
   Context context;
   LinkedHashMap<PictureMesher.PictureSide, Bitmap> bitmapMap;
@@ -72,6 +71,7 @@ public class CameraActivity extends AppCompatActivity {
   private WebAPI webAPI;
   private String modalName;
   Camera.Parameters p;
+  public final String TAG = this.getClass().getSimpleName();
 
   private final Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback() {
     @Override public void onShutter() {
@@ -90,7 +90,6 @@ public class CameraActivity extends AppCompatActivity {
     @Override public void onPictureTaken(byte[] data, Camera camera) {
       Log.e(TAG, "JPEG onPictureTaken");
       Toast.makeText(context, currentSide.getAsString() + " picture logged.", Toast.LENGTH_SHORT).show();
-
       Bitmap bitmap = ImageUtils.scaleBitmapToDimension(BitmapFactory.decodeByteArray(data, 0, data.length), AlgorithmConstants.Preprocess.IMAGE_SIZE_WVGA);
       bitmapMap.put(currentSide, bitmap);
       doneTakingPicture();
@@ -150,7 +149,7 @@ public class CameraActivity extends AppCompatActivity {
     // check if weve gotten all the pictures
 
     // stripping this shit
-    Bitmap smallerBitmap = CameraActivity.scaleBitmapToDimension(bitmap, 480);
+    Bitmap s∂mallerBitmap = CameraActivity.scaleBitmapToDimension(bitmap, 480);
     bitmapMap.put(currentSide, stripThisShit(smallerBitmap.copy(bitmap.getConfig(), true)));
 
     if (currentSide.equals(PictureMesher.PictureSide.FRONT)) {
@@ -169,6 +168,9 @@ public class CameraActivity extends AppCompatActivity {
           Toast.makeText(CameraActivity.this, "Doing calculations for model.", Toast.LENGTH_LONG)
               .show();
           modalThingShow();
+          for(MeshPoint point : data.points){
+            Log.e(TAG, String.format("%d %d %d", point.x, point.y, point.z));
+          }
         }
       });
     }
@@ -189,7 +191,7 @@ public class CameraActivity extends AppCompatActivity {
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent result) {
     if (requestCode == Crop.REQUEST_CROP && resultCode == RESULT_OK) {
-      Log.e("@@@@", "wtf shit actually worked");
+      Log.e(TAG, "wtf shit actually worked");
       Bitmap bitmap = BitmapFactory.decodeFile((new File(context.getFilesDir(), String.format("bitmap%s.png", currentSide.getAsString()))).getAbsolutePath());
       slimShady(bitmap);
     }
@@ -209,7 +211,7 @@ public class CameraActivity extends AppCompatActivity {
     };
 
     RestAdapter restAdapter = new RestAdapter.Builder()
-        .setEndpoint("https://isodfw.herokuapp.com")
+        .setEndpoint("https://isoapp.herokuapp.com")
         .setLogLevel(RestAdapter.LogLevel.FULL)
         .setRequestInterceptor(interceptor)
         .build();
@@ -415,11 +417,11 @@ public class CameraActivity extends AppCompatActivity {
     WebData data = new WebData(modalName, "This is data", bitmapAsStr);
     webAPI.sendFile(data, new Callback<Response>() {
       @Override public void success(Response response, Response response2) {
-        Log.e("@@@@@", "gg web works");
+        Log.e(TAG, "gg web works");
       }
 
       @Override public void failure(RetrofitError error) {
-        Log.e("@@@@@@", "retrofit failed yo: " + error.getMessage());
+        Log.e(TAG, "retrofit failed yo: " + error.getMessage());
       }
     });
   }
@@ -438,7 +440,7 @@ public class CameraActivity extends AppCompatActivity {
       public void onClick(DialogInterface dialog, int whichButton) {
 
         // Do something with value!
-        Log.e("@@@@", "your thing is called: " + input.getText().toString());
+        Log.e(TAG, "your thing is called: " + input.getText().toString());
         modalName = input.getText().toString();
         readyToSendData();
       }
