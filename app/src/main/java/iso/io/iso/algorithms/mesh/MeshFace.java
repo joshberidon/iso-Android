@@ -47,6 +47,7 @@ public class MeshFace {
 
 
     private HashMap<EdgePointRegion, Deltas> deltaMap = new HashMap<>();
+    private HashMap<EdgePointRegion, Coords> coordsMap = new HashMap<>();
 
     private void genDeltas() {
 
@@ -69,6 +70,12 @@ public class MeshFace {
             d.deltaY = y2 - y1;
 
             deltaMap.put(region, d);
+
+            Coords coords = new Coords();
+            coords.x = x1;
+            coords.y = y1;
+
+            coordsMap.put(region, coords);
         }
     }
 
@@ -85,7 +92,8 @@ public class MeshFace {
 
             for(EdgePointRegion region : points) {
                 Deltas d = deltaMap.get(region);
-                layers[i].addPoint(region.x1 - i * d.deltaX, region.y1 - i * d.deltaY);
+                Coords c = coordsMap.get(region);
+                layers[i].addPoint(c.x - i * d.deltaX, c.y - i * d.deltaY);
             }
         }
     }
@@ -96,5 +104,9 @@ public class MeshFace {
 
     private class Deltas {
         float deltaX, deltaY;
+    }
+
+    private class Coords {
+        float x, y;
     }
 }
